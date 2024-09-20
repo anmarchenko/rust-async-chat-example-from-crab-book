@@ -5,6 +5,8 @@ use async_std::net::TcpListener;
 use async_std::task::block_on;
 use async_std::{prelude::*, task};
 
+use connection::serve;
+
 mod connection;
 mod group;
 mod group_table;
@@ -24,10 +26,16 @@ fn main() -> ChatResult<()> {
             let groups = chat_group_table.clone();
 
             task::spawn(async {
-                // log_error(connection::serve)
-            })
+                log_error(serve(socket, groups).await);
+            });
         }
 
         Ok(())
     })
+}
+
+fn log_error(result: ChatResult<()>) {
+    if let Err(error) = result {
+        eprintln!("Error: {}", error);
+    }
 }
